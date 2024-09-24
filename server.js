@@ -27,7 +27,7 @@ mongoose
 app.use(
   session({
     secret:process.env.SESSIONS_KEY,
-    // cookie:{maxAge:60000},
+    cookie:{maxAge:60000},
     resave:false,
     saveUninitialized:true,
   })
@@ -37,12 +37,10 @@ app.use(
 
 
 app.get("/", (req, res) => {
- 
   res.render("Register");
 });
 
 app.get("/login", (req, res) => {
- 
   res.render("Login");
 });
 
