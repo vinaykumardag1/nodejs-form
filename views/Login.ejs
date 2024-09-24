@@ -24,6 +24,12 @@
          <p><span>If Your are not register?</span><a href="/">register</a></p>
         </div>
     </div>
-
+<script>
+    window.history.pushState(null, null, window.location.href);
+    window.onpopstate = function () {
+        window.history.go(1);
+    };
+</script>
+</script>
 </body>
 </html>

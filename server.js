@@ -27,20 +27,13 @@ mongoose
 app.use(
   session({
     secret:process.env.SESSIONS_KEY,
-    cookie:{maxAge:60000},
+    // cookie:{maxAge:60000},
     resave:false,
     saveUninitialized:true,
   })
 )
 
 
-const isAuthenticated = (req, res, next) => {
-  if (req.session.user) {
-      next();
-  } else {
-      res.redirect("/login");
-  }
-};
 
 
 app.get("/", (req, res) => {
@@ -49,7 +42,7 @@ app.get("/", (req, res) => {
 });
 
 app.get("/login", (req, res) => {
-  //  const error_msg=req.flash("error_msg")
+ 
   res.render("Login");
 });
 
@@ -58,7 +51,7 @@ app.post("/", async (req, res) => {
     const existingUser = await User.findOne({ email: req.body.email });
     if (existingUser) {
       
-      // req.flash("register_msg", "Email already registered. Please log in.");
+      res.send("Email already registered. Please log in.");
       return res.redirect("/login")
     }
     const userData = new User({
@@ -88,24 +81,38 @@ app.post("/login", async (req, res) => {
       }
       const isMatch = await bcrypt.compare(req.body.password, user.password);
       if (!isMatch) {
-        // req.flash("error_msg", "Invalid email or password.");
+        res.send("error_msg", "Invalid email or password.");
         return res.redirect("/login");
       }
-      // req.flash("success_msg", "You are now logged in");
+     
       res.redirect("home");
     } catch (err) {
       res.status(500).send(`Error during login: ${err.message}`);
     }
   });
-  app.get("/home", isAuthenticated, (req,res)=>{
-    res.render("home")
+  function noCache(req, res, next) {
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+    next();
+}
+  app.get("/home", noCache, (req,res)=>{
+    if (req.session.user) {
+      res.render('home');
+     } else {
+      res.redirect('/login');
+     }
   })
-app.get("/logout", (req, res) => {
-    req.session.destroy(() => {
-        res.clearCookie("sessionId");
-        res.redirect("/login");
+app.get('/logout', (req, res) => {
+    req.session.destroy(err => {
+        if (err) {
+            return res.status(500).send('Error in session destroy');
+        }
+        
+        res.redirect('/login');
     });
 });
+
 
 app.listen(PORT, () => {
   console.log("Server is running on http://localhost:8000");
