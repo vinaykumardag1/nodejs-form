@@ -41,7 +41,8 @@ app.get("/", (req, res) => {
 });
 
 app.get("/login", (req, res) => {
-  res.render("Login");
+  const invalid_msg="email or password wrong"
+  res.render("Login",{invalid_msg});
 });
 
 app.post("/", async (req, res) => {
@@ -74,7 +75,7 @@ app.post("/login", async (req, res) => {
       req.session.user=user
       res.cookie("sessionId",req.sessionID)
       if (!user) {
-        req.flash("error_msg", "Invalid email or password.");
+        // req.flash("error_msg", "Invalid email or password.");
        return res.redirect("/login");
       }
       const isMatch = await bcrypt.compare(req.body.password, user.password);
@@ -88,7 +89,7 @@ app.post("/login", async (req, res) => {
       res.status(500).send(`Error during login: ${err.message}`);
     }
   });
-  function noCache(req, res, next) {
+function noCache(req, res, next) {
     res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
     res.set('Pragma', 'no-cache');
     res.set('Expires', '0');
@@ -106,7 +107,6 @@ app.get('/logout', (req, res) => {
         if (err) {
             return res.status(500).send('Error in session destroy');
         }
-        
         res.redirect('/login');
     });
 });
