@@ -34,8 +34,6 @@ app.use(
 )
 
 
-
-
 app.get("/", (req, res) => {
   res.render("Register");
 });
@@ -49,7 +47,6 @@ app.post("/", async (req, res) => {
   try {
     const existingUser = await User.findOne({ email: req.body.email });
     if (existingUser) {
-      
       res.send("Email already registered. Please log in.");
       return res.redirect("/login")
     }
@@ -75,7 +72,7 @@ app.post("/login", async (req, res) => {
       req.session.user=user
       res.cookie("sessionId",req.sessionID)
       if (!user) {
-        // req.flash("error_msg", "Invalid email or password.");
+        
        return res.redirect("/login");
       }
       const isMatch = await bcrypt.compare(req.body.password, user.password);
